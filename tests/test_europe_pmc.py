@@ -155,6 +155,24 @@ def test_fetch_papers_request_failure():
     assert results is None
 
 
+def test_fetch_papers_unexpected_response_structure():
+    mock_response = Mock()
+
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {
+        "message": "Request successful"
+    }
+
+    with patch("europe_pmc.requests.get") as mock_get:
+        mock_get.return_value = mock_response
+
+        results = fetch_papers(
+            "drug solubility",
+            page_size=2
+        )
+
+    assert results is None
+
 def test_fetch_papers_invalid_json():
     mock_response = Mock()
 
@@ -177,3 +195,25 @@ def test_fetch_papers_invalid_json():
         )
 
     assert results is None
+
+
+def test_fetch_papers_empty_results():
+    mock_response = Mock()
+
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {
+        "resultList": {
+            "result": []
+        }
+    }
+
+    with patch("europe_pmc.requests.get") as mock_get:
+        mock_get.return_value = mock_response
+
+        results = fetch_papers(
+            "drug solubility",
+            page_size=2
+        )
+
+    assert results == []
+    assert results is not None

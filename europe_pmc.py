@@ -23,7 +23,11 @@ def fetch_papers(query, page_size=5):
 
         data = response.json()
 
-        return data["resultList"]["result"]
+        try:
+            return data["resultList"]["result"]
+        except (KeyError, TypeError):
+            print("Unexpected response structure.")
+            return None
 
     except requests.exceptions.JSONDecodeError:
         print("The server returned an invalid response.")
