@@ -1,7 +1,8 @@
-from europe_pmc import duplicate_papers, process_metadata, fetch_papers
+from europe_pmc import duplicate_papers, process_metadata, fetch_papers, normalize_title
 from unittest.mock import patch, Mock
 
 import requests
+import pytest
 
 
 def test_process_metadata():
@@ -217,3 +218,47 @@ def test_fetch_papers_empty_results():
 
     assert results == []
     assert results is not None
+
+
+def test_normalize_title_valid_title():
+    assert (
+        normalize_title(" Drug Solubility Research. ")
+        == "drug solubility research"
+    )
+
+
+def test_normalize_title_none():
+    assert normalize_title(None) is None
+
+
+def test_normalize_title_empty_string():
+    assert normalize_title("") is None
+
+
+def test_normalize_title_whitespace_only():
+    assert normalize_title("   ") is None
+
+
+def test_normalize_title_invalid_type():
+    with pytest.raises(TypeError):
+        normalize_title(123)
+
+
+def test_normalize_title_only_periods():
+    assert normalize_title("....") is None
+
+def test_duplicate_papers_missing_all_metadata():
+    papers = [
+        {
+            "title": None,
+            "doi": None,
+            "pmid": None,
+        }
+    ]
+
+    unique, confirmed, possible, conflicts = duplicate_papers(papers)
+
+    assert len(unique) == 1
+    assert len(confirmed) == 0
+    assert len(possible) == 0
+    assert len(conflicts) == 0

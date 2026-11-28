@@ -39,14 +39,18 @@ def fetch_papers(query, page_size=5):
 
 
 def normalize_title(title):
-    """
-    Normalize a title for duplicate detection.
+    if title is None:
+        return None
 
-    Note:
-    Assumes title is a string. The caller is currently
-    responsible for providing a valid string value.
-    """
-    return title.lower().strip().rstrip(".")
+    if not isinstance(title, str):
+        raise TypeError("Title must be a string or None.")
+
+    normalized = title.lower().strip().rstrip(".")
+
+    if not normalized:
+        return None
+
+    return normalized
 
 
 def process_metadata(papers):
